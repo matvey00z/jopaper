@@ -3,7 +3,7 @@ import logging
 
 from joypaper.generator import Generator
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
