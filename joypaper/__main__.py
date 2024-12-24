@@ -1,7 +1,6 @@
 import logging
 import argparse
 import os
-import shutil
 import tempfile
 
 from joypaper.generator import Generator
@@ -75,7 +74,10 @@ def main():
             logger=logger,
         )
         wallpaper_filename = generator.get_next_wallpaper()
-        shutil.copy2(wallpaper_filename, args.path)
+        # Write file content manually to support both file and pipe outputs
+        with open(args.path, "wb") as o:
+            with open(wallpaper_filename, "rb") as i:
+                o.write(i.read())
 
     logging.info(f"Wallpaper saved to: {args.path}")
 

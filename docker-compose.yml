@@ -1,0 +1,19 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    entrypoint: poetry run fastapi run joypaper/api.py
+
+  cli:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: no
+    volumes:
+      - ./:/out
+    profiles: [cli]
+    entrypoint: poetry run python -m joypaper --path /out/wallpaper.png
