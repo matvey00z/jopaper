@@ -8,8 +8,8 @@ from pathlib import Path
 
 
 class Settings(BaseSettings):
-    max_used_cnt: int = 10
-    max_wallpaper_cnt: int = 10
+    max_used_cnt: int = 20
+    max_wallpaper_cnt: int = 20
 
 
 settings = Settings()
