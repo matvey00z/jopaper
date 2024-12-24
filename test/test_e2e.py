@@ -16,6 +16,7 @@ def test_e2e(tmp_path):
         screen_w=3440,
         screen_h=1440,
         logger=logger,
+        is_async=False,
     )
 
     wallpaper_filename = generator.get_next_wallpaper()

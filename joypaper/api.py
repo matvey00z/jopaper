@@ -3,35 +3,33 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 import logging
-import os
-from joypaper import Generator
+from joypaper import Generators
 
 
 class Settings(BaseSettings):
     base_url: str = "localhost"
     data_dir: str = "/tmp/joypaper-data"
+    screen_w_default: int = 3440
+    screen_h_default: int = 1440
 
 
 settings = Settings()
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
-generator = Generator(
-    download_dir=os.path.join(settings.data_dir, "/tmp/downloads"),
-    used_dir=os.path.join(settings.data_dir, "/tmp/downloads/used"),
-    wallpaper_dir=os.path.join(settings.data_dir, "/tmp/wallpapers"),
-    screen_w=3440,
-    screen_h=1440,
-    logger=logger,
-)
+generators = Generators(logger)
 
-app = FastAPI()
+app = FastAPI(on_shutdown=[generators.stop])
 
 
 @app.get("/wallpaper")
-async def wallpaper():
-    filename = generator.get_next_wallpaper()
+async def wallpaper(
+    screen_w: int = settings.screen_w_default, screen_h: int = settings.screen_h_default
+):
+    generator = await generators.get_generator(screen_w, screen_h)
+    filename = await generator.aget_next_wallpaper()
     return FileResponse(filename, filename="wallpaper.png")
 
 
