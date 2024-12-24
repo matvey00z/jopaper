@@ -7,7 +7,7 @@ import os
 class Settings(BaseSettings):
     max_generators: int = 10
     max_images_per_generator: int = 10
-    fs_root: str = "/tmp/jopaper/generator"
+    fs_root: str = "./storage"
 
 
 settings = Settings()
