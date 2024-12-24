@@ -1,4 +1,4 @@
-from joypaper import Generator
+from jopaper import Generator
 import os
 import logging
 

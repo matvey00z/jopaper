@@ -1,6 +1,6 @@
-# JoyPaper
+# JoPaper
 
-JoyPaper generates random wallpapers by combining images published on https://joyreactor.cc
+JoPaper generates random wallpapers by combining images published on https://joyreactor.cc
 
 This project is NOT affiliated or in any way associated with JoyReactor.
 
@@ -13,10 +13,10 @@ This project is NOT affiliated or in any way associated with JoyReactor.
 sudo docker compose run --build cli
 
 # Generate wallpaper.png in current directory using poetry:
-poetry run python -m joypaper
+poetry run python -m jopaper
 
 # See possible options:
-poetry run python -m joypaper -h
+poetry run python -m jopaper -h
 ```
 
 ### Server
@@ -26,7 +26,7 @@ poetry run python -m joypaper -h
 sudo docker compose up --build
 
 # With poetry:
-poetry run fastapi run joypaper/api.py
+poetry run fastapi run jopaper/api.py
 ```
 
 Then go to http://127.0.0.1:8000/

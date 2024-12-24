@@ -17,12 +17,12 @@ COPY pyproject.toml poetry.lock /app/
 RUN poetry install --no-root --no-dev
 
 # Copy the rest of the application code
-COPY joypaper /app/joypaper
+COPY jopaper /app/jopaper
 
 # Expose the port that the app runs on
 EXPOSE 8000
 
 # Run the FastAPI application
 CMD ["poetry", "run", \
-    "fastapi", "run", "joypaper/api.py", \
+    "fastapi", "run", "jopaper/api.py", \
     "--host", "0.0.0.0", "--port", "8000"]

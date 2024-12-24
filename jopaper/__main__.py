@@ -3,7 +3,7 @@ import argparse
 import os
 import tempfile
 
-from joypaper.generator import Generator
+from jopaper.generator import Generator
 
 
 class DirManager:
@@ -24,7 +24,7 @@ class DirManager:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Joypaper: Generate random wallpapers from joyreactor.cc's posts."
+        description="JoPaper: Generate random wallpapers from joyreactor.cc's posts."
     )
 
     parser.add_argument(

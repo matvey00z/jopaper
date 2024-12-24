@@ -1,6 +1,6 @@
-from joypaper import reactor
-from joypaper.storage import Storage
-from joypaper.layout import SubImage, Wall
+from jopaper import reactor
+from jopaper.storage import Storage
+from jopaper.layout import SubImage, Wall
 from PIL import Image
 import random
 from typing import List

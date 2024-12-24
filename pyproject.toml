@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "joypaper"
+name = "jopaper"
 version = "0.1.0"
 description = ""
 authors = ["matvey00z"]

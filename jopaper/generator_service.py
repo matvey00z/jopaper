@@ -1,13 +1,13 @@
 from pydantic_settings import BaseSettings
 import asyncio
-from joypaper import Generator
+from jopaper import Generator
 import os
 
 
 class Settings(BaseSettings):
     max_generators: int = 10
     max_images_per_generator: int = 10
-    fs_root: str = "/tmp/joypaper/generator"
+    fs_root: str = "/tmp/jopaper/generator"
 
 
 settings = Settings()

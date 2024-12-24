@@ -6,7 +6,7 @@ services:
     ports:
       - "8000:8000"
     restart: unless-stopped
-    entrypoint: poetry run fastapi run joypaper/api.py
+    entrypoint: poetry run fastapi run jopaper/api.py
 
   cli:
     build:
@@ -16,4 +16,4 @@ services:
     volumes:
       - ./:/out
     profiles: [cli]
-    entrypoint: poetry run python -m joypaper --path /out/wallpaper.png
+    entrypoint: poetry run python -m jopaper --path /out/wallpaper.png

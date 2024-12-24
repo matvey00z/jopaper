@@ -3,12 +3,11 @@ from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 import logging
-from joypaper import Generators
+from jopaper import Generators
 
 
 class Settings(BaseSettings):
     base_url: str = "localhost"
-    data_dir: str = "/tmp/joypaper-data"
     screen_w_default: int = 3440
     screen_h_default: int = 1440
 
@@ -45,5 +44,5 @@ async def rwg3() -> RWG3Response:
 
 @app.get("/")
 async def index() -> HTMLResponse:
-    with open("joypaper/static/index.html") as f:
+    with open("jopaper/static/index.html") as f:
         return HTMLResponse(content=f.read(), status_code=200)
