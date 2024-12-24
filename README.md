@@ -29,6 +29,4 @@ sudo docker compose up --build
 poetry run fastapi run joypaper/api.py
 ```
 
-Download random wallpaper: http://127.0.0.1:8000/wallpaper
-
-Set custom screen size: http://127.0.0.1:8000/wallpaper?screen_w=1920&screen_h=1080
+Then go to http://127.0.0.1:8000/
