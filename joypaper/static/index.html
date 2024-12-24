@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JoyPaper</title>
+    <script>
+        function handleDownload() {
+            // Get the input values
+            const screenWidth = document.getElementById('screenWidth').value;
+            const screenHeight = document.getElementById('screenHeight').value;
+
+            // Construct the URL
+            let url = '/wallpaper';
+            if (screenWidth || screenHeight) {
+                if(screenWidth) {
+                    url += `?screen_w=${screenWidth}`
+                }
+                if(screenHeight) {
+                    if(screenWidth) {
+                        url += "&"
+                    }
+                    else {
+                        url += "?"
+                    }
+                    url += `screen_h=${screenHeight}`
+                }
+            }
+
+            // Redirect to the constructed URL
+            window.location.href = url;
+        }
+    </script>
+</head>
+<body>
+    <h1>Generate Wallpaper</h1>
+    <form onsubmit="event.preventDefault(); handleDownload();">
+        <label for="screenWidth">Screen Width:</label>
+        <input type="number" id="screenWidth" name="screenWidth"><br><br>
+
+        <label for="screenHeight">Screen Height:</label>
+        <input type="number" id="screenHeight" name="screenHeight"><br><br>
+
+        <button type="submit">Download</button>
+    </form>
+</body>
+</html>

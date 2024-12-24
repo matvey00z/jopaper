@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 import logging
@@ -41,3 +41,9 @@ class RWG3Response(BaseModel):
 @app.get("/rwg3")
 async def rwg3() -> RWG3Response:
     return RWG3Response(url="/".join([settings.base_url, "wallpaper"]))
+
+
+@app.get("/")
+async def index() -> HTMLResponse:
+    with open("joypaper/static/index.html") as f:
+        return HTMLResponse(content=f.read(), status_code=200)
