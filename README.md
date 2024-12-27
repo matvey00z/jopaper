@@ -30,3 +30,6 @@ poetry run fastapi run jopaper/api.py
 ```
 
 Then go to http://127.0.0.1:8000/
+
+Optional environment for the server:
+- `OTLP_ENDPOINT`: set otlp endpoint for monitoring

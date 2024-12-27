@@ -10,11 +10,17 @@ from opentelemetry import trace
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk.resources import Resource
+import logging
 
-jaeger_endpoint = os.environ.get("JAEGER_ENDPOINT")
+otlp_endpoint = os.environ.get("OTLP_ENDPOINT", None)
 
 
 def setup_tracer(fastapi_app):
+    if otlp_endpoint is None:
+        logging.warn("No monitoring endpoint defined")
+        return
+    logging.debug(f"Using otlp endpoint {otlp_endpoint}")
+
     tracer = TracerProvider(
         resource=Resource.create(
             {
@@ -24,7 +30,7 @@ def setup_tracer(fastapi_app):
     )
     trace.set_tracer_provider(tracer)
     tracer.add_span_processor(
-        BatchSpanProcessor(OTLPSpanExporter(endpoint=jaeger_endpoint, insecure=True))
+        BatchSpanProcessor(OTLPSpanExporter(endpoint=otlp_endpoint, insecure=True))
     )
 
     FastAPIInstrumentor.instrument_app(fastapi_app, tracer_provider=tracer)
