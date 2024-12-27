@@ -9,6 +9,11 @@ exporters:
     endpoint: jaeger-collector:4317
     tls:
       insecure: true
+  prometheus:
+    endpoint: 0.0.0.0:8889
+
+connectors:
+  spanmetrics:
 
 processors:
   batch:
@@ -18,4 +23,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp]
+      exporters: [spanmetrics, otlp]
+    metrics/spanmetrics:
+      receivers: [spanmetrics]
+      exporters: [prometheus]

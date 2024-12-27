@@ -42,9 +42,14 @@ services:
 
   jaeger-query:
     image: jaegertracing/jaeger-query:${JAEGER_VERSION}
+    environment:
+      - METRICS_STORAGE_TYPE=prometheus
     command:
       - "--cassandra.keyspace=${CASSANDRA_KEYSPACE}"
       - "--cassandra.servers=cassandra"
+      - "--prometheus.server-url=http://prometheus:9090"
+      - "--prometheus.query.normalize-duration=true"
+      - "--prometheus.query.normalize-calls=true"
     ports:
       - "16686:16686"
     restart: unless-stopped
@@ -60,3 +65,10 @@ services:
       - ./config/otel-collector/config.yml:/config.yml
     depends_on:
       - jaeger-collector
+
+  prometheus:
+    image: prom/prometheus:v2.51.2
+    command:
+      - "--config.file=/config.yml"
+    volumes:
+      - ./config/prometheus/config.yml:/config.yml
