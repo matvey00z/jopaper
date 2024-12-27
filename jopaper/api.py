@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 import logging
 from jopaper import Generators
+from jopaper import tracing
 
 
 class Settings(BaseSettings):
@@ -14,7 +15,7 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -46,3 +47,6 @@ async def rwg3() -> RWG3Response:
 async def index() -> HTMLResponse:
     with open("jopaper/static/index.html") as f:
         return HTMLResponse(content=f.read(), status_code=200)
+
+
+tracing.setup_tracer(app)

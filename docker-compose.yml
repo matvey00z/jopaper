@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    environment:
+      - JAEGER_ENDPOINT=otel-collector:4317
     restart: unless-stopped
     entrypoint: poetry run fastapi run jopaper/api.py
 
@@ -17,3 +19,44 @@ services:
       - ./:/out
     profiles: [cli]
     entrypoint: poetry run python -m jopaper --path /out/wallpaper.png
+
+  jaeger-collector:
+    image: jaegertracing/jaeger-collector:${JAEGER_VERSION}
+    command:
+      - "--cassandra.keyspace=${CASSANDRA_KEYSPACE}"
+      - "--cassandra.servers=cassandra"
+      - "--collector.otlp.enabled=true"
+    environment:
+      - SAMPLING_CONFIG_TYPE=adaptive
+    restart: unless-stopped
+    depends_on:
+      - cassandra-schema
+
+  cassandra:
+    image: cassandra:5.0.2
+
+  cassandra-schema:
+    image: jaegertracing/jaeger-cassandra-schema:${JAEGER_VERSION}
+    environment:
+      - KEYSPACE=${CASSANDRA_KEYSPACE}
+
+  jaeger-query:
+    image: jaegertracing/jaeger-query:${JAEGER_VERSION}
+    command:
+      - "--cassandra.keyspace=${CASSANDRA_KEYSPACE}"
+      - "--cassandra.servers=cassandra"
+    ports:
+      - "16686:16686"
+    restart: unless-stopped
+    depends_on:
+      - cassandra-schema
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.116.1
+    restart: unless-stopped
+    command:
+      - "--config=/config.yml"
+    volumes:
+      - ./config/otel-collector/config.yml:/config.yml
+    depends_on:
+      - jaeger-collector
