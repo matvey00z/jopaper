@@ -9,8 +9,8 @@ from jopaper import tracing
 
 class Settings(BaseSettings):
     base_url: str = "localhost"
-    screen_w_default: int = 3440
-    screen_h_default: int = 1440
+    screen_w_default: int = 1920
+    screen_h_default: int = 1080
 
 
 settings = Settings()
