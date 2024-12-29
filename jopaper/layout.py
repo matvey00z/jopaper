@@ -66,18 +66,23 @@ class Wall:
     def add(self, subimage):
         self.subs.append(subimage)
 
-    def get_png(self) -> Tuple[List[str], bytes]:
-        wall = Image.new("RGB", (self.width, self.height))
-        arranged = self._arrange_used_boxes()
+    def get_png(self, tracer) -> Tuple[List[str], bytes]:
+        with tracer.start_as_current_span("Image.new"):
+            wall = Image.new("RGB", (self.width, self.height))
+        with tracer.start_as_current_span("arrange_boxes"):
+            arranged = self._arrange_used_boxes()
         assert arranged
 
         used_keys = []
         for sub in arranged:
-            img = sub.get_image()
-            wall.paste(img, sub.get_pos())
+            with tracer.start_as_current_span("get_image"):
+                img = sub.get_image()
+            with tracer.start_as_current_span("paste"):
+                wall.paste(img, sub.get_pos())
             used_keys.append(sub.filename)
         buff = io.BytesIO()
-        wall.save(buff, format="PNG")
+        with tracer.start_as_current_span("wall.save"):
+            wall.save(buff, format="PNG")
         return used_keys, buff.getvalue()
 
     def _arrange_used_boxes(self):

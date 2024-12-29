@@ -160,7 +160,7 @@ class Generator:
                     wall = self._gen_random_wall(list(images.values()))
                 if wall is None:
                     return None
-                used_files, image = wall.get_png()
+                used_files, image = wall.get_png(tracer=self.tracer)
                 with self.tracer.start_as_current_span("save_wallpaper"):
                     wallpaper_filename = self.storage.save_wallpaper(image)
                 for f in used_files:
