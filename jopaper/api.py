@@ -16,8 +16,6 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-# No effect if tracing is enabled.
-# Importing jopaper.tracing calls basicConfig.
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -57,4 +55,4 @@ async def index() -> HTMLResponse:
         return HTMLResponse(content=f.read(), status_code=200)
 
 
-tracing.setup_fastapi(app)
+tracing.setup_tracer(app)

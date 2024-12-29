@@ -802,21 +802,6 @@ opentelemetry-util-http = "0.50b0"
 instruments = ["fastapi (>=0.58,<1.0)"]
 
 [[package]]
-name = "opentelemetry-instrumentation-logging"
-version = "0.50b0"
-description = "OpenTelemetry Logging instrumentation"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "opentelemetry_instrumentation_logging-0.50b0-py3-none-any.whl", hash = "sha256:b33e301e1533f9d3b1bd5bf0ed2d938378b17cdd470c9dc04c61307357f6b302"},
-    {file = "opentelemetry_instrumentation_logging-0.50b0.tar.gz", hash = "sha256:7f5f9e28f7ccdac9b9a5dc09830e4a70331c59184f7788bff499f44d1393225a"},
-]
-
-[package.dependencies]
-opentelemetry-api = ">=1.12,<2.0"
-opentelemetry-instrumentation = "0.50b0"
-
-[[package]]
 name = "opentelemetry-instrumentation-requests"
 version = "0.50b0"
 description = "OpenTelemetry requests instrumentation"
@@ -1775,4 +1760,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "c67fa858c8e6ea82f6c33a69227738f13c307b9c767926cc8f8d3442dde6c40e"
+content-hash = "e19be291cd2cc20d2decb1e89ba7845c14ce9669b3a4e027005919bc61ea8079"
