@@ -50,7 +50,6 @@ class Generators:
         self.logger.debug("Stopping generators")
         for key in list(self.generators.keys()):
             self._remove_generator(key)
-        self.process_pool.shutdown()
 
     async def _new_generator(self, screen_w, screen_h):
         new_gen = Generator(
