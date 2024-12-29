@@ -55,4 +55,4 @@ async def index() -> HTMLResponse:
         return HTMLResponse(content=f.read(), status_code=200)
 
 
-tracing.setup_tracer(app)
+tracing.setup_tracer(app, generators)

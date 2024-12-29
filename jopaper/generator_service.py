@@ -26,6 +26,11 @@ class Generators:
 
         self.tasks = {}
 
+        self.tracer = None
+
+    def set_tracer(self, tracer):
+        self.tracer = tracer
+
     async def get_generator(self, screen_w: int, screen_h: int):
         key = (screen_w, screen_h)
         async with self.lock:
@@ -65,6 +70,7 @@ class Generators:
             max_images=settings.max_images_per_generator,
             logger=self.logger,
             is_async=True,
+            tracer=self.tracer,
         )
         return new_gen
 

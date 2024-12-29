@@ -5,6 +5,36 @@ from PIL import Image
 import random
 from typing import List
 import asyncio
+import functools
+
+
+class LogTracer:
+    def __init__(self, logger):
+        self.logger = logger
+
+    def start_as_current_span(self, name):
+        class Span:
+            def __init__(self, name, logger):
+                self.name = name
+                self.logger = logger
+
+            def __enter__(self):
+                self.logger.debug(f"trace: enter {self.name}")
+                return self
+
+            def __exit__(self, *args, **kwargs):
+                self.logger.debug(f"trace: exit {self.name}")
+                pass
+
+            def __call__(self, f, *args, **kwargs):
+                @functools.wraps(f)
+                def w(*args, **kwargs):
+                    with self:
+                        return f(*args, **kwargs)
+
+                return w
+
+        return Span(name, self.logger)
 
 
 class Generator:
@@ -18,6 +48,7 @@ class Generator:
         logger,
         max_images: int = None,
         is_async: bool = False,
+        tracer=None,
     ):
         self.screen_w = screen_w
         self.screen_h = screen_h
@@ -26,6 +57,7 @@ class Generator:
         self.source = reactor.Source(logger, filters)
         self.storage = Storage(download_dir, used_dir, wallpaper_dir, logger)
         self.is_async = is_async
+        self.tracer = tracer if tracer is not None else LogTracer(self.logger)
         self.feed = self._wallpaper_feed()
         if self.is_async:
             self.wallpapers_queue = asyncio.Queue(maxsize=max_images)
@@ -60,6 +92,7 @@ class Generator:
         return await loop.run_in_executor(None, f)
 
     async def _download_random_image(self):
+        @self.tracer.start_as_current_span("download_random_image")
         def f():
             image = self.source.get_image()
             try:
@@ -116,22 +149,26 @@ class Generator:
         images = {}
         async for filename in self._random_file_feed():
 
+            @self.tracer.start_as_current_span("generate_wallpaper")
             def f():
-                p = self._parse_image(filename)
+                with self.tracer.start_as_current_span("parse_image"):
+                    p = self._parse_image(filename)
                 if p is None:
                     return None
                 images[filename] = p
-                wall = self._gen_random_wall(list(images.values()))
+                with self.tracer.start_as_current_span("generate_layout"):
+                    wall = self._gen_random_wall(list(images.values()))
                 if wall is None:
                     return None
                 used_files, image = wall.get_png()
-                wallpaper_filename = self.storage.save_wallpaper(image)
+                with self.tracer.start_as_current_span("save_wallpaper"):
+                    wallpaper_filename = self.storage.save_wallpaper(image)
                 for f in used_files:
                     del images[f]
                     self.storage.mark_used(f)
                 return wallpaper_filename
 
-            wallpaper_filename = f()  # await self._run_bg(f)
+            wallpaper_filename = await self._run_bg(f)
             if wallpaper_filename:
                 yield wallpaper_filename
 

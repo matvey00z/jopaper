@@ -14,7 +14,7 @@ import logging
 otlp_endpoint = os.environ.get("OTLP_ENDPOINT", None)
 
 
-def setup_tracer(fastapi_app):
+def setup_tracer(fastapi_app, generators):
     if otlp_endpoint is None:
         logging.warn("No monitoring endpoint defined")
         return
@@ -34,3 +34,4 @@ def setup_tracer(fastapi_app):
 
     FastAPIInstrumentor.instrument_app(fastapi_app, tracer_provider=tracer)
     RequestsInstrumentor().instrument(tracer_provider=tracer)
+    generators.set_tracer(trace.get_tracer("generators"))
