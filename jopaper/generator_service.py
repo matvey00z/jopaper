@@ -93,4 +93,4 @@ def _sort_k_by_v_join(left: dict, right: dict, default=0):
     """
     Return keys of left dict sorted by their values in right dict
     """
-    return sorted((k for k, v in left), key=lambda kv: right[kv[0]])
+    return sorted((k for k, v in left))
