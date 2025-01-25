@@ -1,11 +1,12 @@
 from fastapi import FastAPI, Query
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 import logging
+import uuid
 from jopaper import Generators
 from jopaper import tracing
-from typing import Annotated
+from typing import Annotated, Optional
 
 
 class Settings(BaseSettings):
@@ -27,6 +28,7 @@ app = FastAPI(on_shutdown=[generators.stop])
 
 @app.get("/wallpaper")
 async def wallpaper(
+    session_id: Optional[str] = None,
     screen_w: Annotated[
         int, Query(title="Screen width", ge=100, le=8000)
     ] = settings.screen_w_default,
@@ -35,7 +37,7 @@ async def wallpaper(
     ] = settings.screen_h_default,
 ):
     generator = await generators.get_generator(screen_w, screen_h)
-    filename = await generator.aget_next_wallpaper()
+    filename = await generator.aget_next_wallpaper(session_id)
     return FileResponse(filename, filename="wallpaper.png")
 
 
@@ -50,9 +52,16 @@ async def rwg3() -> RWG3Response:
 
 
 @app.get("/")
-async def index() -> HTMLResponse:
+async def index(session_id: Optional[str] = None) -> HTMLResponse:
+    if session_id is None or len(session_id) != 32:
+        session_id = uuid.uuid4().hex
+        return RedirectResponse(f"/?session_id={session_id}")
+    else:
+        session_id = session_id[:32]
     with open("jopaper/static/index.html") as f:
-        return HTMLResponse(content=f.read(), status_code=200)
+        page = f.read()
+        page = page.replace("SESSION_ID", session_id)
+        return HTMLResponse(content=page, status_code=200)
 
 
 tracing.setup_tracer(app, generators)

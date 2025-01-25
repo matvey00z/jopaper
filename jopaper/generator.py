@@ -37,6 +37,62 @@ class LogTracer:
         return Span(name, self.logger)
 
 
+class Cache:
+    def __init__(self, logger):
+        self.logger = logger
+        self.lock = asyncio.Lock()
+        # Items count should be about 10 so list is fine
+        self.items = []
+        self.sessions = []
+        self.max_session_number = 1000
+        self.session_last_items = {}
+        self.epoch = 0
+
+    async def add(self, item, session_id):
+        async with self.lock:
+            self.items.append(item)
+            self.session_last_items[session_id] = self.epoch + len(self.items)
+
+    async def remove(self, item):
+        async with self.lock:
+            try:
+                self.items.remove(item)
+                self.epoch += 1
+            except ValueError:
+                self.logger.warning(
+                    f"Trying to remove unexisting item from cache: [{item}]"
+                )
+
+    async def get(self, session_id):
+        async with self.lock:
+            last_item = self.session_last_items.get(session_id)
+            if last_item is None or last_item < self.epoch:
+                current_item = self.epoch
+            else:
+                current_item = last_item + 1
+            if (
+                current_item >= self.epoch + len(self.items)
+                or current_item < self.epoch
+            ):
+                return None
+            self.session_last_items[session_id] = current_item
+
+            if len(self.session_last_items) > self.max_session_number:
+                await self._pop_sessions()
+            return self.items[current_item - self.epoch]
+
+    async def _pop_sessions(self):
+        rev = ((last, session) for last, session in self.session_last_items.items())
+        rem = [session for last, session in rev if last < self.epoch]
+        # If all sessions are up to date, remove the oldest 10%
+        if not rem:
+            rev = sorted(rev, key=lambda ls: ls[1])
+            rem = [session for last, session in rev[: self.max_session_number / 10]]
+
+        for session in rem:
+            del self.session_last_items[session]
+
+
 class Generator:
     def __init__(
         self,
@@ -61,6 +117,7 @@ class Generator:
         self.feed = self._wallpaper_feed()
         if self.is_async:
             self.wallpapers_queue = asyncio.Queue(maxsize=max_images)
+            self.cache = Cache(self.logger)
         self.logger.debug(f"Created new generator: {vars(self)}")
 
     async def start(self):
@@ -81,10 +138,20 @@ class Generator:
         assert not self.is_async
         return asyncio.run(anext(self.feed))
 
-    async def aget_next_wallpaper(self) -> str:
+    async def aget_next_wallpaper(self, session_id: str) -> str:
         assert self.is_async
-        wallpaper = await self.wallpapers_queue.get()
-        self.wallpapers_queue.task_done()
+        wallpaper = None
+        if not self.wallpapers_queue.full():
+            wallpaper = await self.cache.get(session_id)
+        if wallpaper is None:
+            wallpaper = await self.wallpapers_queue.get()
+            self.wallpapers_queue.task_done()
+
+            old_wallpapers = self.storage.get_old_wallpapers()
+            for item in old_wallpapers:
+                await self.cache.remove(item)
+            self.storage.rm_wallpapers(old_wallpapers)
+            await self.cache.add(wallpaper, session_id)
         return wallpaper
 
     async def _run_bg(self, f):

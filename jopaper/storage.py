@@ -59,20 +59,24 @@ class Storage:
             )
         return dest
 
-    def save_wallpaper(self, image: bytes) -> str:
+    def save_wallpaper(self, image: bytes, rm_callback=None) -> str:
         ftype = "png"
         fname = _get_path(self.wallpaper_dir, "wallpaper", self._count(), ftype)
         with open(fname, "wb") as f:
             f.write(image)
+        return fname
 
-        old_files = _clean_directory(
-            self.wallpaper_dir, "wallpaper", settings.max_wallpaper_cnt
+    def get_old_wallpapers(self):
+        return _clean_directory(
+            self.wallpaper_dir, "wallpaper", settings.max_wallpaper_cnt, dry_run=True
         )
+        pass
+
+    def rm_wallpapers(self, old_files):
         if old_files:
             self.logger.debug(
                 f"Wallpapers clean up: removed {len(old_files)} old files"
             )
-        return fname
 
     def _count(self):
         self.counter += 1
@@ -94,10 +98,15 @@ def _get_path(dirname, prefix, count, ftype):
     return os.path.join(dirname, f"{prefix}-{now}-{count}.{ftype}")
 
 
-def _clean_directory(dirname, prefix, to_keep):
+def _clean_directory(dirname, prefix, to_keep, dry_run=False):
     files = _read_directory(dirname, prefix)
     files = sorted(files)
     files = files[:-to_keep]
+    if not dry_run:
+        _rm_files(files)
+    return files
+
+
+def _rm_files(files):
     for file in files:
         Path.unlink(file, missing_ok=True)
-    return files
