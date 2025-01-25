@@ -6,11 +6,9 @@
     <title>JoPaper</title>
     <script>
         function handleDownload() {
-            // Get the input values
             const screenWidth = document.getElementById('screenWidth').value;
             const screenHeight = document.getElementById('screenHeight').value;
 
-            // Construct the URL
             let url = `/wallpaper`;
             url += `?session_id=SESSION_ID`;
             if (screenWidth || screenHeight) {
@@ -21,8 +19,8 @@
                     url += `&screen_h=${screenHeight}`
                 }
             }
+            url += `&r=` + crypto.randomUUID();
 
-            // Redirect to the constructed URL
             window.location.href = url;
         }
     </script>

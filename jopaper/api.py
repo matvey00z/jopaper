@@ -35,6 +35,7 @@ async def wallpaper(
     screen_h: Annotated[
         int, Query(title="Screen height", ge=100, le=8000)
     ] = settings.screen_h_default,
+    r: Optional[str] = None,  # to make urls unique; ignore
 ):
     generator = await generators.get_generator(screen_w, screen_h)
     filename = await generator.aget_next_wallpaper(session_id)
